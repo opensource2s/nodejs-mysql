@@ -1,0 +1,24 @@
+name: EC2-Deploy-Pipeline
+
+on:
+  push:
+    branches: [ "main" ] # Runs every time you push code to the main branch
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      - name: SSH and Deploy to EC2
+        uses: appleboy/ssh-action@v1.0.3
+        with:
+          host: ${{ secrets.EC2_HOST }}
+          username: ${{ secrets.EC2_USER }}
+          key: ${{ secrets.EC2_SSH_KEY }}
+          script: |
+            cd /home/ubuntu/nodejs-mysql # Change this to your folder on EC2
+            git pull origin main
+            npm install
+            pm2 restart all || npm start
